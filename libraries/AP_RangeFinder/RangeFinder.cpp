@@ -25,6 +25,7 @@
 #include "AP_RangeFinder_Bebop.h"
 #include "AP_RangeFinder_MAVLink.h"
 #include "AP_RangeFinder_LeddarOne.h"
+#include "AP_RangeFinder_trone.h"
 
 extern const AP_HAL::HAL &hal;
 
@@ -494,18 +495,22 @@ void RangeFinder::detect_instance(uint8_t instance)
     }
 #endif
     if (type == RangeFinder_TYPE_PLI2C) {
-        _add_backend(AP_RangeFinder_PulsedLightLRF::detect(*this, instance, state[instance]));
+        _add_backend(AP_RangeFinder_trone::detect(*this, instance, state[instance]));
+        //_add_backend(AP_RangeFinder_PulsedLightLRF::detect(*this, instance, state[instance]));
     }
     if (type == RangeFinder_TYPE_MBI2C) {
         _add_backend(AP_RangeFinder_MaxsonarI2CXL::detect(*this, instance, state[instance]));
     }
+    
     if (type == RangeFinder_TYPE_LWI2C) {
         if (_address[instance]) {
             _add_backend(AP_RangeFinder_LightWareI2C::detect(*this, instance, state[instance],
                 hal.i2c_mgr->get_device(HAL_RANGEFINDER_LIGHTWARE_I2C_BUS, _address[instance])));
         }
     }
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4  || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
+    
+    
+    #if CONFIG_HAL_BOARD == HAL_BOARD_PX4  || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
     if (type == RangeFinder_TYPE_PX4) {
         if (AP_RangeFinder_PX4::detect(*this, instance)) {
             state[instance].instance = instance;
@@ -520,7 +525,7 @@ void RangeFinder::detect_instance(uint8_t instance)
             return;
         }
     }
-#endif
+    #endif
 #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_BBBMINI
     if (type == RangeFinder_TYPE_BBB_PRU) {
         if (AP_RangeFinder_BBB_PRU::detect(*this, instance)) {
